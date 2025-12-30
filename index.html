@@ -3,159 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STUDIO M - Mobile Optimized</title>
+    <title>STUDIO M - Ultimate UX Edition</title>
     <style>
         :root {
-            --bg-color: #f2f3f5;
+            --bg-color: #f8f9fa;
             --sidebar-color: #ffffff;
             --accent-color: #6d6763;
-            --border-color: #e5e5e5;
-            --text-main: #333333;
-            --text-muted: #999999;
-            --input-h: 44px;
+            --border-color: #eee;
+            --text-main: #333;
+            --input-h: 48px;
         }
 
         body {
-            font-family: -apple-system, "Noto Sans TC", sans-serif;
+            font-family: -apple-system, sans-serif;
             background-color: var(--bg-color);
             margin: 0; display: flex; height: 100vh; color: var(--text-main);
-            overflow: hidden; /* 防止整頁亂跑 */
+            overflow: hidden;
         }
 
-        /* 電腦版側邊欄 */
+        /* --- Desktop Layout (維持你喜歡的樣子) --- */
         .sidebar {
             width: 360px; background: var(--sidebar-color);
-            padding: 35px; box-shadow: 10px 0 40px rgba(0,0,0,0.02);
-            display: flex; flex-direction: column; gap: 28px;
-            overflow-y: auto; z-index: 10; flex-shrink: 0;
+            padding: 40px; box-shadow: 10px 0 40px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; gap: 30px;
+            overflow-y: auto; flex-shrink: 0;
         }
-
-        .brand-logo {
-            font-size: 1.3rem; font-weight: 700; letter-spacing: 3px;
-            color: var(--accent-color); border-left: 5px solid var(--accent-color);
-            padding-left: 15px;
+        .preview-pane {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #e9eaec; padding: 40px; position: relative;
         }
+        .canvas-container { position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.1); background: #fff; }
+        canvas { display: block; max-width: 100%; max-height: 100%; cursor: grab; }
 
+        /* --- Mobile UI Elements (手機版專用組件) --- */
+        .mobile-tabs { display: none; }
+        .mobile-header { display: none; }
+
+        /* 通用元件 */
         .control-section { display: flex; flex-direction: column; gap: 15px; }
-        .section-label { font-size: 11px; font-weight: 700; color: #ccc; letter-spacing: 1.5px; }
-
-        /* UI 元件樣式 */
+        .section-label { font-size: 11px; font-weight: 700; color: #bbb; letter-spacing: 1.5px; text-transform: uppercase; }
         .select-wrapper { position: relative; }
         .select-wrapper::after {
-            content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            content: ''; position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
             width: 8px; height: 5px; background-color: #ccc; clip-path: polygon(0 0, 100% 0, 50% 100%);
         }
         select, input[type="month"] {
-            width: 100%; height: var(--input-h); padding: 0 14px; border-radius: 8px;
-            border: 1px solid var(--border-color); background: #fafafa; font-size: 14px;
-            appearance: none; -webkit-appearance: none; outline: none;
+            width: 100%; height: var(--input-h); padding: 0 15px; border-radius: 12px;
+            border: 1px solid var(--border-color); background: #fafafa; font-size: 14px; appearance: none; outline: none;
         }
         .file-upload-btn {
             display: flex; align-items: center; justify-content: center; height: var(--input-h);
-            border-radius: 8px; border: 1px dashed var(--border-color); background: #fafafa;
-            color: var(--text-muted); font-size: 13px; position: relative;
+            border-radius: 12px; border: 1px dashed #ccc; background: #fafafa; color: #888; position: relative;
         }
-        .file-upload-btn input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; }
-
-        .slider-wrap { display: flex; flex-direction: column; gap: 6px; }
-        input[type="range"] { width: 100%; height: 4px; background: #eee; appearance: none; accent-color: var(--accent-color); }
-
-        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .file-upload-btn input { position: absolute; opacity: 0; width: 100%; height: 100%; }
+        .slider-wrap { display: flex; flex-direction: column; gap: 8px; }
+        input[type="range"] { width: 100%; height: 4px; background: #eee; appearance: none; accent-color: var(--accent-color); border-radius: 2px; }
+        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .color-item {
-            background: #fafafa; border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 12px;
+            background: #fafafa; border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 13px;
         }
-        input[type="color"] { width: 24px; height: 24px; border: none; background: none; }
-
+        input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; }
         .btn-download {
-            background: var(--accent-color); color: #fff; border: none; padding: 16px;
-            border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 5px;
+            background: var(--accent-color); color: #fff; border: none; padding: 18px;
+            border-radius: 15px; font-weight: 600; cursor: pointer; font-size: 15px;
         }
 
-        /* 預覽區域 */
-        .preview-pane {
-            flex: 1; display: flex; align-items: center; justify-content: center; padding: 30px;
-            background: #e9eaec; overflow: hidden;
-        }
-        .canvas-container { position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.1); background: #fff; }
-        canvas { display: block; max-width: 100%; max-height: 100%; }
-
-        /* --- 手機版 UX 深度優化 --- */
+        /* --- Mobile Responsive 重構 --- */
         @media (max-width: 900px) {
-            body { flex-direction: column; overflow: hidden; }
-
-            .preview-pane {
-                height: 40vh; /* 縮小預覽高度 */
-                width: 100%; padding: 10px; flex-shrink: 0;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 20;
+            body { flex-direction: column; }
+            .sidebar { 
+                position: fixed; bottom: 0; width: 100%; height: 50vh; 
+                padding: 25px; border-radius: 30px 30px 0 0; 
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
+                transition: height 0.3s ease;
             }
-
-            .canvas-container {
-                transform: scale(0.65); /* 顯著縮小預覽比例，避免蓋住下方 */
-                transform-origin: center center;
+            .preview-pane { height: 50vh; padding: 20px; }
+            
+            /* 行動端分頁系統 */
+            .mobile-tabs {
+                display: flex; position: fixed; bottom: 0; width: 100%; 
+                background: #fff; border-top: 1px solid #eee; z-index: 100;
+                justify-content: space-around; padding: 10px 0 25px 0;
             }
-
-            .sidebar {
-                flex: 1; /* 讓控制面板佔滿剩餘空間 */
-                width: 100%; padding: 25px; gap: 25px;
-                overflow-y: auto; /* 面板內獨自捲動 */
-                -webkit-overflow-scrolling: touch;
+            .tab-item { font-size: 11px; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+            .tab-item.active { color: var(--accent-color); font-weight: bold; }
+            
+            .sidebar { height: 40vh; padding-bottom: 80px; }
+            .control-section { display: none; }
+            .control-section.active { display: flex; }
+            
+            .mobile-header {
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee;
+                position: fixed; top: 0; width: 100%; z-index: 100;
             }
-
-            .color-row { grid-template-columns: 1fr 1fr; } /* 手機維持並排節省空間 */
+            .brand-logo { border: none; padding: 0; font-size: 1rem; }
+            .preview-pane { margin-top: 50px; height: calc(60vh - 50px); }
         }
     </style>
 </head>
 <body>
 
-<aside class="sidebar">
+<div class="mobile-header">
     <div class="brand-logo">STUDIO M</div>
+    <div style="font-size: 12px; color: #999;">雙指縮放圖片 / 單指移動月曆</div>
+</div>
 
-    <div class="control-section">
-        <span class="section-label">01 裝置與時間</span>
+<aside class="sidebar" id="sidebar">
+    <div class="control-section active" id="sec-device">
+        <span class="section-label">01 裝置規格</span>
         <div class="select-wrapper">
             <select id="resSelect" onchange="initCanvas()">
-                <option value="1290,2796" data-type="phone">手機</option>
-                <option value="1920,1080" data-type="pc">電腦</option>
-                <option value="2048,2732" data-type="tablet">平板</option>
+                <option value="1290,2796" data-type="phone">手機 iPhone</option>
+                <option value="1920,1080" data-type="pc">電腦 Desktop</option>
+                <option value="2048,2732" data-type="tablet">平板 iPad</option>
             </select>
         </div>
         <input type="month" id="monthInput" onchange="draw()">
     </div>
 
-    <div class="control-section">
-        <span class="section-label">02 背景圖片</span>
+    <div class="control-section" id="sec-bg">
+        <span class="section-label">02 素材背景</span>
         <div class="file-upload-btn">
-            <span id="fileName">點擊上傳圖片</span>
+            <span id="fileName">點擊上傳背景圖片</span>
             <input type="file" id="upload" accept="image/*">
         </div>
         <div class="slider-wrap">
+            <div class="slider-header"><span>圖片縮放</span></div>
             <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
         </div>
         <div class="color-item">
-            <span>畫布補色</span>
+            <span>畫布底色</span>
             <input type="color" id="bgColor" value="#f4f3ee" onchange="draw()">
         </div>
     </div>
 
-    <div class="control-section">
-        <span class="section-label">03 月曆編排</span>
+    <div class="control-section" id="sec-cal">
+        <span class="section-label">03 月曆樣式</span>
         <div class="select-wrapper">
             <select id="langSelect" onchange="draw()">
-                <option value="en">English</option>
-                <option value="zh">中文</option>
+                <option value="en">English (Mon-Sun)</option>
+                <option value="zh">繁體中文 (一-日)</option>
             </select>
         </div>
         <div class="slider-wrap">
+            <div class="slider-header"><span>月曆大小</span></div>
             <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
         </div>
         <div class="color-row">
-            <div class="color-item"><span>文字</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
-            <div class="color-item"><span>週末</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
+            <div class="color-item"><span>主要文字</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
+            <div class="color-item"><span>週末顏色</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
         </div>
     </div>
 
-    <button class="btn-download" onclick="download()">EXPORT IMAGE</button>
+    <div class="control-section" id="sec-export">
+        <span class="section-label">04 完成匯出</span>
+        <p style="font-size: 13px; color: #888;">確認設計無誤後，點擊下方按鈕下載高解析度桌布。</p>
+        <button class="btn-download" onclick="download()">SAVE TO ALBUM</button>
+    </div>
 </aside>
 
 <main class="preview-pane">
@@ -164,7 +170,22 @@
     </div>
 </main>
 
+<nav class="mobile-tabs">
+    <div class="tab-item active" onclick="switchTab('device', this)"><span>⚙️</span>裝置</div>
+    <div class="tab-item" onclick="switchTab('bg', this)"><span>🖼️</span>背景</div>
+    <div class="tab-item" onclick="switchTab('cal', this)"><span>📅</span>月曆</div>
+    <div class="tab-item" onclick="switchTab('export', this)"><span>💾</span>匯出</div>
+</nav>
+
 <script>
+    // --- 切換 Tab 邏輯 ---
+    function switchTab(target, el) {
+        document.querySelectorAll('.control-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        document.getElementById('sec-' + target).classList.add('active');
+        el.classList.add('active');
+    }
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let img = null;
@@ -185,11 +206,12 @@
         const ratio = w / h;
         
         if (window.innerWidth > 900) {
-            if (w > h) { container.style.width = "65vw"; container.style.height = (65 / ratio) + "vw"; }
+            if (w > h) { container.style.width = "60vw"; container.style.height = (60 / ratio) + "vw"; }
             else { container.style.height = "75vh"; container.style.width = (75 * ratio) + "vh"; }
         } else {
-            // 手機版讓畫布比例適應螢幕寬度，但受 scale 限制
-            container.style.width = "70vw"; container.style.height = (70 / ratio) + "vw";
+            // 手機版預覽圖適配
+            if (w > h) { container.style.width = "85vw"; container.style.height = (85 / ratio) + "vw"; }
+            else { container.style.height = "40vh"; container.style.width = (40 * ratio) + "vh"; }
         }
         state.calX = w * 0.1; state.calY = h * 0.35;
         draw();
@@ -264,7 +286,6 @@
         ctx.restore();
     }
 
-    // 交互邏輯
     const getEvPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const s = canvas.width / rect.width;
@@ -274,7 +295,7 @@
     };
     const startH = (e) => {
         const [mx, my, cx, cy] = getEvPos(e);
-        const hitZone = Math.min(canvas.width, canvas.height) * 0.3;
+        const hitZone = Math.min(canvas.width, canvas.height) * 0.3 * parseFloat(document.getElementById('calScale').value);
         const dist = Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2);
         state.activeLayer = dist < hitZone ? 'cal' : 'img';
         state.isDragging = true; state.lastCX = cx; state.lastCY = cy;
