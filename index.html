@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STUDIO M | Smart Interface</title>
+    <title>STUDIO M | Pro Mockup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg-base: #f0f1f3;
-            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.95);
             --accent-primary: #3d3a38;
             --accent-soft: #8e8a86;
-            --border-soft: rgba(0, 0, 0, 0.06);
-            --font-main: -apple-system, "SF Pro Display", "Noto Sans TC", sans-serif;
+            --border-soft: rgba(0, 0, 0, 0.08);
         }
 
         body {
-            font-family: var(--font-main); background-color: var(--bg-base);
-            margin: 0; display: flex; height: 100vh; color: var(--accent-primary);
-            overflow: hidden; -webkit-font-smoothing: antialiased;
+            font-family: -apple-system, "SF Pro Display", sans-serif;
+            background-color: var(--bg-base); margin: 0; display: flex; height: 100vh;
+            color: var(--accent-primary); overflow: hidden; -webkit-font-smoothing: antialiased;
         }
 
         /* --- 頂部標頭 --- */
@@ -29,73 +28,61 @@
         }
         .header-logo { font-weight: 800; letter-spacing: 5px; font-size: 0.8rem; }
 
-        /* --- 預覽區域 (核心修正) --- */
+        /* --- 預覽區域 --- */
         .preview-pane {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 50px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 50px; cursor: zoom-out; /* 提示點擊可收合 */
         }
         .canvas-container { 
-            position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.1); 
-            background: #fff; transition: transform 0.4s ease;
+            position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.15); 
+            background: #fff; border-radius: 40px; /* 模擬手機圓角 */
+            overflow: hidden; transition: transform 0.4s ease;
         }
         canvas { display: block; max-width: 100%; max-height: 100%; }
 
-        /* --- 抽屜式側邊欄 --- */
-        .sidebar {
-            width: 380px; background: #fff; padding: 45px; 
-            box-shadow: 20px 0 60px rgba(0,0,0,0.03);
-            display: flex; flex-direction: column; gap: 30px;
-            overflow-y: auto; z-index: 50; flex-shrink: 0;
+        /* --- 鎖屏時間模擬器 (Overlay) --- */
+        .lock-screen-info {
+            position: absolute; top: 12%; width: 100%; text-align: center;
+            color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.2); pointer-events: none;
+            display: none; flex-direction: column; align-items: center;
         }
+        .ls-date { font-size: 1.2rem; font-weight: 500; margin-bottom: 5px; }
+        .ls-time { font-size: 5.5rem; font-weight: 700; letter-spacing: -2px; }
 
-        .desktop-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 5px; margin-bottom: 10px; }
-        .desktop-logo::after { content: ''; display: block; width: 25px; height: 3px; background: var(--accent-primary); margin-top: 8px; }
+        /* --- 控制面板 --- */
+        .sidebar {
+            width: 360px; background: #fff; padding: 40px; 
+            display: flex; flex-direction: column; gap: 25px;
+            z-index: 50; flex-shrink: 0; overflow-y: auto;
+        }
+        .desktop-logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 4px; margin-bottom: 15px; border-left: 4px solid #000; padding-left: 15px; }
 
-        /* 控制項元件 */
-        .control-section { display: none; flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease; }
+        .control-section { display: none; flex-direction: column; gap: 15px; animation: fadeIn 0.3s ease; }
         .control-section.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .section-label { font-size: 10px; font-weight: 700; color: var(--accent-soft); letter-spacing: 2px; }
-        .custom-input {
-            width: 100%; height: 50px; border: 1px solid var(--border-soft);
-            border-radius: 14px; background: #fafafa; padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box;
-        }
-        .slider-group { padding: 5px 0; }
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 3px; background: #ddd; border-radius: 5px; margin: 15px 0; accent-color: var(--accent-primary); }
-        .color-well { background: #fafafa; border: 1px solid var(--border-soft); border-radius: 14px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-        input[type="color"] { width: 30px; height: 30px; border: none; background: none; cursor: pointer; }
-        .btn-export { background: var(--accent-primary); color: #fff; border: none; padding: 18px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; }
+        .custom-input { width: 100%; height: 48px; border: 1px solid var(--border-soft); border-radius: 12px; background: #fafafa; padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box; }
+        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .color-well { background: #fafafa; border: 1px solid var(--border-soft); border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+        input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; }
 
         /* --- 手機版交互設計 --- */
         @media (max-width: 900px) {
             body { flex-direction: column; }
             .mobile-header { display: flex; }
+            .preview-pane { height: 100vh; padding: 40px 20px 100px 20px; box-sizing: border-box; flex: none; width: 100%; }
             
-            .preview-pane { height: 100vh; padding: 20px; box-sizing: border-box; }
-            
-            /* 抽屜樣式修正 */
             .sidebar {
-                position: fixed; left: 0; bottom: 0; width: 100%; 
-                height: 45vh; padding: 20px 25px 90px 25px;
-                border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-                background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
-                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-                z-index: 150; box-sizing: border-box;
+                position: fixed; bottom: 0; width: 100%; height: 45vh;
+                padding: 15px 25px 90px 25px; border-radius: 35px 35px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.1); background: #fff;
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 150; box-sizing: border-box;
             }
-
-            /* 收合狀態 */
-            .sidebar.collapsed { transform: translateY(calc(100% - 130px)); }
-            
-            /* 抽屜把手 */
-            .drag-handle {
-                width: 40px; height: 5px; background: #ddd; border-radius: 10px;
-                margin: 0 auto 15px auto; cursor: pointer; display: block;
-            }
-
+            .sidebar.collapsed { transform: translateY(calc(100% - 90px)); }
+            .drag-handle { width: 40px; height: 4px; background: #eee; border-radius: 10px; margin: 0 auto 15px auto; }
             .desktop-logo { display: none; }
-            
-            /* 底部選單永遠在最前 */
+
             .mobile-tabs {
                 display: flex; position: fixed; bottom: 0; width: 100%; height: 75px;
                 background: #fff; border-top: 1px solid var(--border-soft);
@@ -105,10 +92,9 @@
             .tab-btn.active { color: var(--accent-primary); font-weight: 700; }
         }
 
-        /* 電腦版隱藏把手 */
         @media (min-width: 901px) {
-            .drag-handle { display: none; }
             .control-section { display: flex !important; }
+            .mobile-tabs, .drag-handle { display: none; }
         }
     </style>
 </head>
@@ -118,8 +104,12 @@
     <div class="header-logo">STUDIO M</div>
 </div>
 
-<main class="preview-pane" id="main-preview">
+<main class="preview-pane" onclick="closeSidebarOnMobile()">
     <div class="canvas-container" id="container">
+        <div class="lock-screen-info" id="lockScreen">
+            <div class="ls-date" id="lsDate">12月31日 星期三</div>
+            <div class="ls-time" id="lsTime">09:41</div>
+        </div>
         <canvas id="canvas"></canvas>
     </div>
 </main>
@@ -129,70 +119,75 @@
     <div class="desktop-logo">STUDIO M</div>
 
     <div class="control-section active" id="sec-device">
-        <span class="section-label">01 裝置</span>
+        <span class="section-label">01 裝置規格</span>
         <select id="resSelect" class="custom-input" onchange="initCanvas()">
-            <option value="1290,2796" data-type="phone">手機 iPhone</option>
-            <option value="1920,1080" data-type="pc">電腦 16:9</option>
-            <option value="2048,2732" data-type="tablet">平板 iPad</option>
+            <option value="1290,2796" data-type="phone">手機 iPhone (19.5:9)</option>
+            <option value="1920,1080" data-type="pc">電腦 16:9 (無鎖屏)</option>
+            <option value="2048,2732" data-type="tablet">平板 iPad (4:3)</option>
         </select>
         <input type="month" id="monthInput" class="custom-input" onchange="draw()">
     </div>
 
     <div class="control-section" id="sec-bg">
-        <span class="section-label">02 背景</span>
+        <span class="section-label">02 素材與背景</span>
         <div class="custom-input" style="display:flex; align-items:center; position:relative; overflow:hidden">
-            <span id="fileName" style="font-size:13px; color:var(--accent-soft)">上傳圖片...</span>
+            <span id="fileName" style="font-size:13px; color:var(--accent-soft)">點擊上傳圖片</span>
             <input type="file" id="upload" style="position:absolute; opacity:0; width:100%" accept="image/*">
         </div>
-        <div class="slider-group">
-            <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
-        </div>
-        <div class="color-well"><span>基底色</span><input type="color" id="bgColor" value="#f4f3ee" onchange="draw()"></div>
+        <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
+        <div class="color-well"><span>基底填色</span><input type="color" id="bgColor" value="#f4f3ee" onchange="draw()"></div>
     </div>
 
     <div class="control-section" id="sec-cal">
-        <span class="section-label">03 月曆</span>
+        <span class="section-label">03 月曆編排</span>
         <select id="langSelect" class="custom-input" onchange="draw()">
-            <option value="en">English</option>
-            <option value="zh">繁體中文</option>
+            <option value="en">English (Mon Start)</option>
+            <option value="zh">繁體中文 (一開始)</option>
         </select>
-        <div class="slider-group">
-            <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
+        <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
+        <div class="color-row">
+            <div class="color-well"><span>主要</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
+            <div class="color-well"><span>週末</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
         </div>
-        <div class="color-well"><span>主要色</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
     </div>
 
     <div class="control-section" id="sec-export">
         <span class="section-label">04 匯出</span>
-        <button class="btn-export" onclick="download()">EXPORT JPG</button>
+        <button class="btn-export" onclick="download()">EXPORT IMAGE</button>
     </div>
 </aside>
 
 <nav class="mobile-tabs">
-    <button class="tab-btn active" onclick="switchTab('device', this)"><i class="fa-solid fa-sliders"></i>裝置</button>
+    <button class="tab-btn active" onclick="switchTab('device', this)"><i class="fa-solid fa-mobile-screen"></i>裝置</button>
     <button class="tab-btn" onclick="switchTab('bg', this)"><i class="fa-solid fa-image"></i>背景</button>
-    <button class="tab-btn" onclick="switchTab('cal', this)"><i class="fa-solid fa-calendar"></i>月曆</button>
-    <button class="tab-btn" onclick="switchTab('export', this)"><i class="fa-solid fa-download"></i>匯出</button>
+    <button class="tab-btn" onclick="switchTab('cal', this)"><i class="fa-solid fa-calendar-alt"></i>月曆</button>
+    <button class="tab-btn" onclick="switchTab('export', this)"><i class="fa-solid fa-check-circle"></i>匯出</button>
 </nav>
 
 <script>
-    // --- 核心交互修正 ---
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('collapsed');
-    }
-
+    // --- 介面控制 ---
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+    function closeSidebarOnMobile() { if(window.innerWidth <= 900) document.getElementById('sidebar').classList.add('collapsed'); }
     function switchTab(target, el) {
-        const sidebar = document.getElementById('sidebar');
-        // 如果是收合狀態，點擊 Tab 要自動彈開
-        sidebar.classList.remove('collapsed');
-        
+        document.getElementById('sidebar').classList.remove('collapsed');
         document.querySelectorAll('.control-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
         document.getElementById('sec-' + target).classList.add('active');
         el.classList.add('active');
     }
 
+    // --- 鎖屏時間功能 ---
+    function updateLockScreen() {
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const options = { month: 'long', day: 'numeric', weekday: 'long' };
+        document.getElementById('lsTime').textContent = timeStr;
+        document.getElementById('lsDate').textContent = now.toLocaleDateString('zh-TW', options);
+    }
+    setInterval(updateLockScreen, 1000);
+    updateLockScreen();
+
+    // --- 畫布核心 ---
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let img = null;
@@ -208,17 +203,26 @@
     function initCanvas() {
         const sel = document.getElementById('resSelect');
         const [w, h] = sel.value.split(',').map(Number);
+        const type = sel.options[sel.selectedIndex].getAttribute('data-type');
         canvas.width = w; canvas.height = h;
+        
+        // 顯示/隱藏鎖屏模擬
+        const ls = document.getElementById('lockScreen');
+        if (type === 'phone' || type === 'tablet') {
+            ls.style.display = 'flex';
+            ls.style.fontSize = type === 'tablet' ? '1.5rem' : '1rem';
+        } else {
+            ls.style.display = 'none';
+        }
+
         const container = document.getElementById('container');
         const ratio = w / h;
-        
         if (window.innerWidth > 900) {
-            if (w > h) { container.style.width = "65vw"; container.style.height = (65 / ratio) + "vw"; }
-            else { container.style.height = "80vh"; container.style.width = (80 * ratio) + "vh"; }
+            container.style.height = w > h ? (60 / ratio) + "vw" : "80vh";
+            container.style.width = w > h ? "60vw" : (80 * ratio) + "vh";
         } else {
-            // 手機版：畫布自動縮放至視窗比例
-            if (w > h) { container.style.width = "80vw"; container.style.height = (80 / ratio) + "vw"; }
-            else { container.style.height = "45vh"; container.style.width = (45 * ratio) + "vh"; }
+            container.style.height = w > h ? (80 / ratio) + "vw" : "55vh";
+            container.style.width = w > h ? "80vw" : (55 * ratio) + "vh";
         }
         state.calX = w * 0.1; state.calY = h * 0.35;
         draw();
@@ -258,6 +262,7 @@
         const [y, m] = dateVal.split('-').map(Number);
         const calScale = parseFloat(document.getElementById('calScale').value);
         const mainColor = document.getElementById('mainColor').value;
+        const weekColor = document.getElementById('weekendColor').value;
         const lang = document.getElementById('langSelect').value;
         const base = Math.min(canvas.width, canvas.height) * 0.02 * calScale;
         const firstDay = new Date(y, m - 1, 1).getDay();
@@ -278,19 +283,20 @@
         const gridW = base * 4.5; const startGridY = base * 6;
         ctx.textAlign = 'center'; ctx.font = `bold ${base * 1.1}px Arial`;
         daysLabel.forEach((d, i) => {
-            ctx.fillStyle = mainColor; ctx.fillText(d, i * gridW + base * 2, startGridY);
+            ctx.fillStyle = (i >= 5) ? weekColor : mainColor;
+            ctx.fillText(d, i * gridW + base * 2, startGridY);
         });
         ctx.font = `${base * 1.5}px Arial`;
         let offset = firstDay === 0 ? 6 : firstDay - 1;
         for (let i = 1; i <= totalDays; i++) {
             let dIdx = (offset + i - 1) % 7;
             let row = Math.floor((offset + i - 1) / 7);
-            ctx.fillStyle = mainColor; ctx.fillText(i, dIdx * gridW + base * 2, startGridY + base * 3 + (row * base * 3.5));
+            ctx.fillStyle = (dIdx >= 5) ? weekColor : mainColor;
+            ctx.fillText(i, dIdx * gridW + base * 2, startGridY + base * 3 + (row * base * 3.5));
         }
         ctx.restore();
     }
 
-    // 交互邏輯
     const getEvPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const s = canvas.width / rect.width;
