@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDIO M - Wallpaper Designer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STUDIO M - Mobile Optimized</title>
     <style>
         :root {
             --bg-color: #f2f3f5;
@@ -12,143 +12,97 @@
             --border-color: #e5e5e5;
             --text-main: #333333;
             --text-muted: #999999;
-            --input-h: 46px;
+            --input-h: 44px;
         }
 
         body {
             font-family: -apple-system, "Noto Sans TC", sans-serif;
             background-color: var(--bg-color);
-            margin: 0; 
-            display: flex; 
-            flex-direction: row; /* 電腦版預設橫向 */
-            height: 100vh; 
-            color: var(--text-main);
-            overflow: hidden;
+            margin: 0; display: flex; height: 100vh; color: var(--text-main);
+            overflow: hidden; /* 防止整頁亂跑 */
         }
 
-        /* 側邊欄控制區 */
+        /* 電腦版側邊欄 */
         .sidebar {
-            width: 380px; 
-            background: var(--sidebar-color);
-            padding: 40px; 
-            box-shadow: 10px 0 40px rgba(0,0,0,0.02);
-            display: flex; 
-            flex-direction: column; 
-            gap: 32px;
-            overflow-y: auto; 
-            z-index: 10; 
-            flex-shrink: 0;
+            width: 360px; background: var(--sidebar-color);
+            padding: 35px; box-shadow: 10px 0 40px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; gap: 28px;
+            overflow-y: auto; z-index: 10; flex-shrink: 0;
         }
 
         .brand-logo {
-            font-size: 1.4rem; font-weight: 700; letter-spacing: 4px;
+            font-size: 1.3rem; font-weight: 700; letter-spacing: 3px;
             color: var(--accent-color); border-left: 5px solid var(--accent-color);
             padding-left: 15px;
         }
 
-        .control-section { display: flex; flex-direction: column; gap: 18px; }
+        .control-section { display: flex; flex-direction: column; gap: 15px; }
+        .section-label { font-size: 11px; font-weight: 700; color: #ccc; letter-spacing: 1.5px; }
 
-        .section-label {
-            font-size: 11px; font-weight: 700; color: #ccc;
-            letter-spacing: 1.5px; text-transform: uppercase;
-        }
-
-        /* 輸入元件對齊樣式 */
-        .select-wrapper { position: relative; width: 100%; }
+        /* UI 元件樣式 */
+        .select-wrapper { position: relative; }
         .select-wrapper::after {
-            content: ''; position: absolute; right: 16px; top: 50%;
-            transform: translateY(-50%); width: 10px; height: 6px;
-            background-color: #ccc; clip-path: polygon(0 0, 100% 0, 50% 100%);
-            pointer-events: none;
+            content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            width: 8px; height: 5px; background-color: #ccc; clip-path: polygon(0 0, 100% 0, 50% 100%);
         }
-
         select, input[type="month"] {
-            width: 100%; height: var(--input-h); padding: 0 16px;
-            border-radius: 10px; border: 1px solid var(--border-color);
-            background: #fafafa; font-size: 14px; outline: none; box-sizing: border-box;
-            appearance: none; -webkit-appearance: none;
+            width: 100%; height: var(--input-h); padding: 0 14px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: #fafafa; font-size: 14px;
+            appearance: none; -webkit-appearance: none; outline: none;
         }
-
         .file-upload-btn {
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; height: var(--input-h); border-radius: 10px;
-            border: 1px dashed var(--border-color); background: #fafafa;
-            color: var(--text-muted); font-size: 13px; cursor: pointer;
-            position: relative; overflow: hidden; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; height: var(--input-h);
+            border-radius: 8px; border: 1px dashed var(--border-color); background: #fafafa;
+            color: var(--text-muted); font-size: 13px; position: relative;
         }
+        .file-upload-btn input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; }
 
-        .file-upload-btn input[type="file"] {
-            position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;
-        }
+        .slider-wrap { display: flex; flex-direction: column; gap: 6px; }
+        input[type="range"] { width: 100%; height: 4px; background: #eee; appearance: none; accent-color: var(--accent-color); }
 
-        .slider-wrap { display: flex; flex-direction: column; gap: 8px; }
-        .slider-header { display: flex; justify-content: space-between; font-size: 12px; color: #888; }
-        
-        input[type="range"] {
-            width: 100%; height: 4px; background: #eee; border-radius: 2px;
-            appearance: none; accent-color: var(--accent-color);
-        }
-
-        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .color-item {
-            background: #fafafa; border: 1px solid var(--border-color);
-            border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+            background: #fafafa; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 12px;
         }
-        input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; padding: 0; }
+        input[type="color"] { width: 24px; height: 24px; border: none; background: none; }
 
         .btn-download {
-            background: var(--accent-color); color: #fff; border: none;
-            padding: 18px; border-radius: 12px; font-weight: 600; cursor: pointer;
-            margin-top: 10px; letter-spacing: 1px;
+            background: var(--accent-color); color: #fff; border: none; padding: 16px;
+            border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 5px;
         }
 
-        /* 右側預覽區 */
+        /* 預覽區域 */
         .preview-pane {
-            flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px;
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 30px;
             background: #e9eaec; overflow: hidden;
         }
-        .canvas-container { position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.12); background: #fff; }
-        canvas { display: block; max-width: 100%; max-height: 100%; cursor: grab; }
+        .canvas-container { position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.1); background: #fff; }
+        canvas { display: block; max-width: 100%; max-height: 100%; }
 
-        .mock-ui {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; color: white; display: flex; flex-direction: column; align-items: center;
-        }
-        .mock-time { font-size: 80px; font-weight: 200; margin-top: 15%; letter-spacing: -2px; }
-
-        /* --- 自適應媒體查詢 (Responsive) --- */
+        /* --- 手機版 UX 深度優化 --- */
         @media (max-width: 900px) {
-            body {
-                flex-direction: column; /* 手機版改為上下排列 */
-                overflow-y: auto; 
-                height: auto;
-            }
-
-            .sidebar {
-                width: 100%; 
-                order: 2; /* 面板在下 */
-                padding: 30px;
-                box-sizing: border-box;
-            }
+            body { flex-direction: column; overflow: hidden; }
 
             .preview-pane {
-                width: 100%;
-                height: 65vh; /* 預覽圖佔據手機上半部 */
-                order: 1; /* 預覽在上 */
-                padding: 20px;
-                position: sticky;
-                top: 0;
-                z-index: 20;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                height: 40vh; /* 縮小預覽高度 */
+                width: 100%; padding: 10px; flex-shrink: 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 20;
             }
 
             .canvas-container {
-                transform: scale(0.85); /* 稍微縮小以適配螢幕 */
+                transform: scale(0.65); /* 顯著縮小預覽比例，避免蓋住下方 */
+                transform-origin: center center;
             }
 
-            .color-row {
-                grid-template-columns: 1fr; /* 手機上顏色按鈕改為一列一個 */
+            .sidebar {
+                flex: 1; /* 讓控制面板佔滿剩餘空間 */
+                width: 100%; padding: 25px; gap: 25px;
+                overflow-y: auto; /* 面板內獨自捲動 */
+                -webkit-overflow-scrolling: touch;
             }
+
+            .color-row { grid-template-columns: 1fr 1fr; } /* 手機維持並排節省空間 */
         }
     </style>
 </head>
@@ -158,29 +112,28 @@
     <div class="brand-logo">STUDIO M</div>
 
     <div class="control-section">
-        <span class="section-label">01 裝置規格</span>
+        <span class="section-label">01 裝置與時間</span>
         <div class="select-wrapper">
             <select id="resSelect" onchange="initCanvas()">
-                <option value="1920,1080" data-type="pc">電腦裝置 (16:9)</option>
-                <option value="1290,2796" data-type="phone">手機裝置 (iPhone)</option>
-                <option value="2048,2732" data-type="tablet">平板裝置 (iPad)</option>
+                <option value="1290,2796" data-type="phone">手機</option>
+                <option value="1920,1080" data-type="pc">電腦</option>
+                <option value="2048,2732" data-type="tablet">平板</option>
             </select>
         </div>
         <input type="month" id="monthInput" onchange="draw()">
     </div>
 
     <div class="control-section">
-        <span class="section-label">02 素材與背景</span>
+        <span class="section-label">02 背景圖片</span>
         <div class="file-upload-btn">
-            <span id="fileName">點擊或拖入圖片</span>
+            <span id="fileName">點擊上傳圖片</span>
             <input type="file" id="upload" accept="image/*">
         </div>
         <div class="slider-wrap">
-            <div class="slider-header"><span>圖片大小</span></div>
             <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
         </div>
         <div class="color-item">
-            <span>底層補色</span>
+            <span>畫布補色</span>
             <input type="color" id="bgColor" value="#f4f3ee" onchange="draw()">
         </div>
     </div>
@@ -189,36 +142,25 @@
         <span class="section-label">03 月曆編排</span>
         <div class="select-wrapper">
             <select id="langSelect" onchange="draw()">
-                <option value="en">英文星期 (MON...)</option>
-                <option value="zh">中文星期 (一...)</option>
+                <option value="en">English</option>
+                <option value="zh">中文</option>
             </select>
         </div>
         <div class="slider-wrap">
-            <div class="slider-header"><span>月曆大小</span></div>
             <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
         </div>
         <div class="color-row">
-            <div class="color-item">
-                <span>主要色</span>
-                <input type="color" id="mainColor" value="#463f3a" onchange="draw()">
-            </div>
-            <div class="color-item">
-                <span>週末色</span>
-                <input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()">
-            </div>
+            <div class="color-item"><span>文字</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
+            <div class="color-item"><span>週末</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
         </div>
     </div>
 
-    <button class="btn-download" onclick="download()">EXPORT DESIGN</button>
+    <button class="btn-download" onclick="download()">EXPORT IMAGE</button>
 </aside>
 
 <main class="preview-pane">
     <div class="canvas-container" id="container">
         <canvas id="canvas"></canvas>
-        <div class="mock-ui" id="mockUI">
-            <div class="mock-time">09:41</div>
-            <div style="font-size: 18px; font-weight: 300; margin-top:-5px;">12月31日 星期三</div>
-        </div>
     </div>
 </main>
 
@@ -226,7 +168,7 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let img = null;
-    let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false, activeLayer: 'img' };
+    let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false };
     const monthNamesShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     window.onload = () => {
@@ -238,21 +180,17 @@
     function initCanvas() {
         const sel = document.getElementById('resSelect');
         const [w, h] = sel.value.split(',').map(Number);
-        const type = sel.options[sel.selectedIndex].dataset.type;
         canvas.width = w; canvas.height = h;
-        
-        document.getElementById('mockUI').style.display = type === 'pc' ? 'none' : 'flex';
-        
         const container = document.getElementById('container');
         const ratio = w / h;
-        // 判斷是否為手機尺寸來決定容器顯示邏輯
-        if (window.innerWidth > 900) {
-            if (w > h) { container.style.width = "70vw"; container.style.height = (70 / ratio) + "vw"; }
-            else { container.style.height = "80vh"; container.style.width = (80 * ratio) + "vh"; }
-        } else {
-            container.style.width = "80vw"; container.style.height = (80 / ratio) + "vw";
-        }
         
+        if (window.innerWidth > 900) {
+            if (w > h) { container.style.width = "65vw"; container.style.height = (65 / ratio) + "vw"; }
+            else { container.style.height = "75vh"; container.style.width = (75 * ratio) + "vh"; }
+        } else {
+            // 手機版讓畫布比例適應螢幕寬度，但受 scale 限制
+            container.style.width = "70vw"; container.style.height = (70 / ratio) + "vw";
+        }
         state.calX = w * 0.1; state.calY = h * 0.35;
         draw();
     }
@@ -282,9 +220,7 @@
         ctx.fillStyle = document.getElementById('bgColor').value;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         state.imgScale = parseFloat(document.getElementById('imgScale').value);
-        if (img && img.complete) {
-            ctx.drawImage(img, state.x, state.y, img.width * state.imgScale, img.height * state.imgScale);
-        }
+        if (img && img.complete) ctx.drawImage(img, state.x, state.y, img.width * state.imgScale, img.height * state.imgScale);
         drawCalendar();
     }
 
@@ -306,26 +242,17 @@
         ctx.fillStyle = mainColor;
         ctx.font = `500 ${base * 7}px "Times New Roman", Serif`;
         ctx.fillText(String(m).padStart(2, '0'), 0, 0);
-
         const lineX = base * 8.5;
-        ctx.strokeStyle = mainColor;
-        ctx.lineWidth = Math.max(1, base * 0.1); 
+        ctx.strokeStyle = mainColor; ctx.lineWidth = Math.max(1, base * 0.1); 
         ctx.beginPath(); ctx.moveTo(lineX, -base * 5.5); ctx.lineTo(lineX, base * 0.5); ctx.stroke();
-
-        ctx.font = `${base * 1.8}px Arial`;
-        ctx.fillText(y, lineX + base * 1.5, -base * 4.3);
-        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`;
-        ctx.fillText(monthNamesShort[m-1], lineX + base * 1.5, base * 0.5);
-
-        const gridW = base * 4.5;
-        const startGridY = base * 6;
-        ctx.textAlign = 'center';
-        ctx.font = `bold ${base * 1.1}px Arial`;
+        ctx.font = `${base * 1.8}px Arial`; ctx.fillText(y, lineX + base * 1.5, -base * 4.3);
+        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`; ctx.fillText(monthNamesShort[m-1], lineX + base * 1.5, base * 0.5);
+        const gridW = base * 4.5; const startGridY = base * 6;
+        ctx.textAlign = 'center'; ctx.font = `bold ${base * 1.1}px Arial`;
         daysLabel.forEach((d, i) => {
             ctx.fillStyle = (i >= 5) ? weekColor : mainColor;
             ctx.fillText(d, i * gridW + base * 2, startGridY);
         });
-
         ctx.font = `${base * 1.5}px Arial`;
         let offset = firstDay === 0 ? 6 : firstDay - 1;
         for (let i = 1; i <= totalDays; i++) {
@@ -337,6 +264,7 @@
         ctx.restore();
     }
 
+    // 交互邏輯
     const getEvPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const s = canvas.width / rect.width;
