@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STUDIO M | Professional Wallpapers</title>
+    <title>STUDIO M | Perfect Mockup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg-base: #f2f2f4;
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --accent-primary: #2d2a28;
+            --bg-base: #f0f1f3;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --accent-primary: #33312f;
             --accent-soft: #8e8a86;
             --border-soft: rgba(0, 0, 0, 0.08);
             --font-main: -apple-system, "SF Pro Display", "PingFang TC", sans-serif;
@@ -21,84 +21,86 @@
             overflow: hidden; -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 頂部標頭 (僅手機) --- */
+        /* --- 手機標頭 --- */
         .mobile-header {
             display: none; position: fixed; top: 0; width: 100%; height: 50px;
-            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            z-index: 100; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-soft);
+            background: #fff; z-index: 100; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-soft);
         }
         .header-logo { font-weight: 800; letter-spacing: 5px; font-size: 0.8rem; }
 
-        /* --- 預覽區域 (核心修正) --- */
+        /* --- 預覽區域 (點擊背景收合) --- */
         .preview-pane {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 50px; cursor: default;
+            padding: 40px; position: relative; cursor: pointer;
         }
         .canvas-container { 
-            position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.12); 
-            background: #fff; border-radius: 40px; overflow: hidden;
+            position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.15); 
+            background: #fff; border-radius: 45px; overflow: hidden;
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; /* 防止干擾背景點擊 */
         }
         canvas { display: block; max-width: 100%; max-height: 100%; }
 
-        /* --- 鎖屏時間模擬器 (調整比例至真實大小) --- */
+        /* --- 核心修正：鎖屏時間 (改用 Canvas 比例連動) --- */
         .lock-screen-info {
-            position: absolute; top: 10%; width: 100%; text-align: center;
-            color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.25); pointer-events: none;
+            position: absolute; top: 11%; width: 100%; text-align: center;
+            color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.2);
             display: none; flex-direction: column; align-items: center;
         }
-        .ls-date { font-size: 1.1rem; font-weight: 500; margin-bottom: 2px; }
-        .ls-time { font-size: 4.8rem; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+        /* 這裡的字體大小會在 JS 中根據 Canvas 寬度動態調整 */
+        #lsDate { font-weight: 500; letter-spacing: 0.5px; }
+        #lsTime { font-weight: 700; letter-spacing: -2px; line-height: 1.1; margin-top: 5px; }
 
-        /* --- 側邊欄 --- */
+        /* --- 側邊欄 (清理冗餘) --- */
         .sidebar {
-            width: 360px; background: #fff; padding: 45px; 
-            box-shadow: 20px 0 60px rgba(0,0,0,0.03);
-            display: flex; flex-direction: column; gap: 30px;
-            overflow-y: auto; z-index: 50; flex-shrink: 0;
+            width: 360px; background: #fff; padding: 40px; 
+            display: flex; flex-direction: column; gap: 25px;
+            z-index: 150; flex-shrink: 0; overflow-y: auto;
         }
-        .desktop-logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 4px; margin-bottom: 10px; border-left: 5px solid #000; padding-left: 15px; }
+        .desktop-logo { font-size: 1.4rem; font-weight: 800; letter-spacing: 4px; border-left: 5px solid #000; padding-left: 15px; margin-bottom: 10px; }
 
-        .control-section { display: none; flex-direction: column; gap: 18px; animation: fadeIn 0.3s ease; }
+        .control-section { display: none; flex-direction: column; gap: 15px; }
         .control-section.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .section-label { font-size: 10px; font-weight: 700; color: var(--accent-soft); letter-spacing: 2px; margin-bottom: 5px; }
-        .custom-input { width: 100%; height: 50px; border: 1px solid var(--border-soft); border-radius: 14px; background: #fafafa; padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box; }
-        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .color-well { background: #fafafa; border: 1px solid var(--border-soft); border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+        .section-label { font-size: 10px; font-weight: 700; color: var(--accent-soft); letter-spacing: 2px; }
+        .custom-input { width: 100%; height: 48px; border: 1px solid var(--border-soft); border-radius: 12px; background: #fafafa; padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box; }
+        
+        /* 美化選擇檔案按鈕 */
+        .file-upload-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            height: 48px; background: #f0f0f0; border-radius: 12px; cursor: pointer; font-size: 13px; color: var(--accent-soft);
+        }
+
+        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-well { background: #fafafa; border: 1px solid var(--border-soft); border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
         input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; }
-        .btn-export { background: var(--accent-primary); color: #fff; border: none; padding: 20px; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .btn-export:hover { background: #000; }
+        
+        .btn-export { background: #000; color: #fff; border: none; padding: 18px; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
-        /* --- 手機版與平板版交互重構 --- */
+        /* --- 手機版交互 --- */
         @media (max-width: 900px) {
             body { flex-direction: column; }
             .mobile-header { display: flex; }
-            .preview-pane { height: 100vh; padding: 40px 20px 100px 20px; box-sizing: border-box; }
+            .preview-pane { height: 100vh; padding: 60px 20px 100px 20px; box-sizing: border-box; }
             
             .sidebar {
-                position: fixed; left: 0; bottom: 0; width: 100%; 
-                height: 45vh; padding: 15px 25px 95px 25px;
-                border-radius: 35px 35px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-                background: rgba(255,255,255,0.98); backdrop-filter: blur(25px);
-                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-                z-index: 150; box-sizing: border-box; overflow-y: auto;
+                position: fixed; bottom: 0; width: 100%; height: 42vh;
+                padding: 15px 25px 90px 25px; border-radius: 30px 30px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: transform 0.4s ease;
             }
-            .sidebar.collapsed { transform: translateY(calc(100% - 95px)); }
-            .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 10px; margin: 0 auto 15px auto; }
+            .sidebar.collapsed { transform: translateY(calc(100% - 90px)); }
+            .drag-handle { width: 40px; height: 4px; background: #eee; border-radius: 10px; margin: 0 auto 15px auto; pointer-events: auto; }
             .desktop-logo { display: none; }
 
             .mobile-tabs {
-                display: flex; position: fixed; bottom: 0; width: 100%; height: 80px;
+                display: flex; position: fixed; bottom: 0; width: 100%; height: 75px;
                 background: #fff; border-top: 1px solid var(--border-soft);
                 z-index: 200; align-items: center; padding-bottom: env(safe-area-inset-bottom);
             }
-            .tab-btn { flex: 1; border: none; background: none; font-size: 11px; color: var(--accent-soft); display: flex; flex-direction: column; align-items: center; gap: 6px; }
-            .tab-btn.active { color: var(--accent-primary); font-weight: 700; }
+            .tab-btn { flex: 1; border: none; background: none; font-size: 11px; color: var(--accent-soft); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+            .tab-btn.active { color: #000; font-weight: 700; }
         }
 
-        /* 電腦版移除多餘 UI */
         @media (min-width: 901px) {
             .mobile-tabs, .drag-handle { display: none !important; }
             .control-section { display: flex !important; }
@@ -111,36 +113,37 @@
     <div class="header-logo">STUDIO M</div>
 </div>
 
-<main class="preview-pane" id="main-preview" onclick="closeSidebarOnMobile()">
+<main class="preview-pane" onclick="closeSidebarOnMobile()">
     <div class="canvas-container" id="container">
         <div class="lock-screen-info" id="lockScreen">
-            <div class="ls-date" id="lsDate">12月31日 星期三</div>
-            <div class="ls-time" id="lsTime">09:41</div>
+            <div id="lsDate">12月31日 星期三</div>
+            <div id="lsTime">09:41</div>
         </div>
         <canvas id="canvas"></canvas>
     </div>
 </main>
 
 <aside class="sidebar" id="sidebar">
-    <div class="drag-handle" onclick="toggleSidebar()"></div>
+    <div class="drag-handle" onclick="toggleSidebar(event)"></div>
     <div class="desktop-logo">STUDIO M</div>
 
     <div class="control-section active" id="sec-device">
         <span class="section-label">01 裝置規格</span>
         <select id="resSelect" class="custom-input" onchange="initCanvas()">
             <option value="1290,2796" data-type="phone">手機 iPhone</option>
-            <option value="1920,1080" data-type="pc">電腦 16:9 (無模擬)</option>
+            <option value="1920,1080" data-type="pc">電腦 16:9</option>
             <option value="2048,2732" data-type="tablet">平板 iPad</option>
         </select>
         <input type="month" id="monthInput" class="custom-input" onchange="draw()">
     </div>
 
     <div class="control-section" id="sec-bg">
-        <span class="section-label">02 素材與背景</span>
-        <div class="custom-input" style="display:flex; align-items:center; position:relative; overflow:hidden">
-            <span id="fileName" style="font-size:13px; color:var(--accent-soft)">上傳背景圖片</span>
-            <input type="file" id="upload" style="position:absolute; opacity:0; width:100%" accept="image/*">
-        </div>
+        <span class="section-label">02 背景圖片</span>
+        <label class="file-upload-btn">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span id="fileName">上傳背景圖</span>
+            <input type="file" id="upload" style="display:none" accept="image/*">
+        </label>
         <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
         <div class="color-well"><span>基底色</span><input type="color" id="bgColor" value="#f4f3ee" onchange="draw()"></div>
     </div>
@@ -148,8 +151,8 @@
     <div class="control-section" id="sec-cal">
         <span class="section-label">03 月曆編排</span>
         <select id="langSelect" class="custom-input" onchange="draw()">
-            <option value="en">English (Minimal)</option>
-            <option value="zh">繁體中文 (精簡)</option>
+            <option value="en">English</option>
+            <option value="zh">繁體中文</option>
         </select>
         <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
         <div class="color-row">
@@ -164,49 +167,43 @@
     </div>
 </aside>
 
-<nav class="mobile-tabs" id="mobileTabs">
+<nav class="mobile-tabs">
     <button class="tab-btn active" onclick="switchTab('device', this)"><i class="fa-solid fa-sliders"></i>裝置</button>
     <button class="tab-btn" onclick="switchTab('bg', this)"><i class="fa-solid fa-image"></i>背景</button>
-    <button class="tab-btn" onclick="switchTab('cal', this)"><i class="fa-solid fa-calendar-day"></i>月曆</button>
-    <button class="tab-btn" onclick="switchTab('export', this)"><i class="fa-solid fa-check-circle"></i>匯出</button>
+    <button class="tab-btn" onclick="switchTab('cal', this)"><i class="fa-solid fa-calendar-alt"></i>月曆</button>
+    <button class="tab-btn" onclick="switchTab('export', this)"><i class="fa-solid fa-circle-check"></i>匯出</button>
 </nav>
 
 <script>
-    // --- 交互邏輯修正 ---
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+    function toggleSidebar(e) { if(e) e.stopPropagation(); document.getElementById('sidebar').classList.toggle('collapsed'); }
     function closeSidebarOnMobile() { if(window.innerWidth <= 900) document.getElementById('sidebar').classList.add('collapsed'); }
     function switchTab(target, el) {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.remove('collapsed');
+        document.getElementById('sidebar').classList.remove('collapsed');
         document.querySelectorAll('.control-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
         document.getElementById('sec-' + target).classList.add('active');
         el.classList.add('active');
     }
 
-    // --- 時間模擬 ---
-    function updateLockScreen() {
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        const options = { month: 'long', day: 'numeric', weekday: 'long' };
-        document.getElementById('lsTime').textContent = timeStr;
-        document.getElementById('lsDate').textContent = now.toLocaleDateString('zh-TW', options);
-    }
-    setInterval(updateLockScreen, 1000);
-    updateLockScreen();
-
-    // --- 畫布核心 ---
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let img = null;
     let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false };
-    const monthNamesShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     window.onload = () => {
         const now = new Date();
         document.getElementById('monthInput').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
         initCanvas();
+        updateTime();
     };
+
+    function updateTime() {
+        const now = new Date();
+        const options = { month: 'long', day: 'numeric', weekday: 'long' };
+        document.getElementById('lsTime').textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('lsDate').textContent = now.toLocaleDateString('zh-TW', options);
+        setTimeout(updateTime, 1000);
+    }
 
     function initCanvas() {
         const sel = document.getElementById('resSelect');
@@ -214,15 +211,21 @@
         const type = sel.options[sel.selectedIndex].getAttribute('data-type');
         canvas.width = w; canvas.height = h;
         
-        const ls = document.getElementById('lockScreen');
+        // --- 比例自適應修正 ---
+        const container = document.getElementById('container');
+        const lockInfo = document.getElementById('lockScreen');
+        
+        // 根據畫布實際寬度決定鎖屏字體大小 (iPhone 寬度約 1200~1300)
+        const scaleFactor = w / 375; // 以 iPhone 標準寬度為基準
+        document.getElementById('lsTime').style.fontSize = (scaleFactor * 80) + 'px';
+        document.getElementById('lsDate').style.fontSize = (scaleFactor * 18) + 'px';
+
         if (type === 'phone' || type === 'tablet') {
-            ls.style.display = 'flex';
-            ls.style.top = type === 'tablet' ? '8%' : '10%';
+            lockInfo.style.display = 'flex';
         } else {
-            ls.style.display = 'none';
+            lockInfo.style.display = 'none';
         }
 
-        const container = document.getElementById('container');
         const ratio = w / h;
         if (window.innerWidth > 900) {
             container.style.height = w > h ? (60 / ratio) + "vw" : "80vh";
@@ -286,7 +289,7 @@
         ctx.strokeStyle = mainColor; ctx.lineWidth = Math.max(1, base * 0.1); 
         ctx.beginPath(); ctx.moveTo(lineX, -base * 5.5); ctx.lineTo(lineX, base * 0.5); ctx.stroke();
         ctx.font = `${base * 1.8}px Arial`; ctx.fillText(y, lineX + base * 1.5, -base * 4.3);
-        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`; ctx.fillText(monthNamesShort[m-1], lineX + base * 1.5, base * 0.5);
+        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`; ctx.fillText(["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][m-1], lineX + base * 1.5, base * 0.5);
         const gridW = base * 4.5; const startGridY = base * 6;
         ctx.textAlign = 'center'; ctx.font = `bold ${base * 1.1}px Arial`;
         daysLabel.forEach((d, i) => {
@@ -294,7 +297,7 @@
             ctx.fillText(d, i * gridW + base * 2, startGridY);
         });
         ctx.font = `${base * 1.5}px Arial`;
-        let offset = firstDay === 0 ? 6 : firstDay - 1;
+        let offset = (new Date(y, m-1, 1).getDay() + 6) % 7;
         for (let i = 1; i <= totalDays; i++) {
             let dIdx = (offset + i - 1) % 7;
             let row = Math.floor((offset + i - 1) / 7);
@@ -304,6 +307,7 @@
         ctx.restore();
     }
 
+    // --- 拖動交互 ---
     const getEvPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const s = canvas.width / rect.width;
@@ -314,8 +318,8 @@
     const startH = (e) => {
         const [mx, my, cx, cy] = getEvPos(e);
         const hitZone = Math.min(canvas.width, canvas.height) * 0.3 * parseFloat(document.getElementById('calScale').value);
-        const dist = Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2);
-        state.activeLayer = dist < hitZone ? 'cal' : 'img';
+        if (Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2) < hitZone) state.activeLayer = 'cal';
+        else state.activeLayer = 'img';
         state.isDragging = true; state.lastCX = cx; state.lastCY = cy;
     };
     const moveH = (e) => {
@@ -334,7 +338,7 @@
 
     function download() {
         const link = document.createElement('a');
-        link.download = `STUDIO_M_DESIGN.jpg`;
+        link.download = `STUDIO_M_CALENDAR.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
     }
