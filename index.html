@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STUDIO M | Final Pro</title>
+    <title>STUDIO M | Pro Mockup Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -25,16 +25,17 @@
         }
         .header-logo { font-weight: 800; letter-spacing: 5px; font-size: 0.8rem; }
 
-        /* 預覽區域 */
+        /* 預覽區域 - 點擊灰色背景可收合 */
         .preview-pane {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 40px; position: relative; cursor: pointer;
+            padding: 40px; position: relative; cursor: default;
         }
         .canvas-container { 
             position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.15); 
-            background: #fff; border-radius: 40px; overflow: hidden; pointer-events: none;
+            background: #fff; border-radius: 40px; overflow: hidden;
+            z-index: 10;
         }
-        canvas { display: block; max-width: 100%; max-height: 100%; }
+        canvas { display: block; max-width: 100%; max-height: 100%; cursor: move; }
 
         /* 側邊欄 */
         .sidebar {
@@ -97,7 +98,7 @@
 </div>
 
 <main class="preview-pane" onclick="closeSidebarOnMobile()">
-    <div class="canvas-container" id="container">
+    <div class="canvas-container" id="container" onclick="event.stopPropagation()">
         <canvas id="canvas"></canvas>
     </div>
 </main>
@@ -167,13 +168,13 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let img = null;
-    let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false, isExporting: false };
+    let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false, isExporting: false, activeLayer: 'img' };
 
     window.onload = () => {
         const now = new Date();
         document.getElementById('monthInput').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
         initCanvas();
-        setInterval(draw, 30000); // 每半分鐘重繪一次更新時間
+        setInterval(draw, 30000);
     };
 
     function initCanvas() {
@@ -182,6 +183,7 @@
         canvas.width = w; canvas.height = h;
         const container = document.getElementById('container');
         const ratio = w / h;
+        
         if (window.innerWidth > 900) {
             container.style.height = w > h ? (60 / ratio) + "vw" : "80vh";
             container.style.width = w > h ? "60vw" : (80 * ratio) + "vh";
@@ -217,38 +219,37 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = document.getElementById('bgColor').value;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         state.imgScale = parseFloat(document.getElementById('imgScale').value);
-        if (img && img.complete) ctx.drawImage(img, state.x, state.y, img.width * state.imgScale, img.height * state.imgScale);
+        if (img && img.complete) {
+            ctx.drawImage(img, state.x, state.y, img.width * state.imgScale, img.height * state.imgScale);
+        }
+        
         drawCalendar();
         
-        // 僅在非匯出模式下繪製鎖屏模擬
         if (!state.isExporting) {
             const type = document.getElementById('resSelect').selectedOptions[0].getAttribute('data-type');
-            if (type === 'phone' || type === 'tablet') drawLockScreen(type);
+            if (type === 'phone' || type === 'tablet') drawLockScreen();
         }
     }
 
-    function drawLockScreen(type) {
+    function drawLockScreen() {
         const now = new Date();
         const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         const dateOptions = { month: 'long', day: 'numeric', weekday: 'long' };
         const dateStr = now.toLocaleDateString('zh-TW', dateOptions);
         
         const w = canvas.width;
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'white';
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.textAlign = 'center'; ctx.fillStyle = 'white';
+        ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(0,0,0,0.2)';
 
-        // 鎖屏時間物理比例 (寬度的 18%)
         ctx.font = `700 ${w * 0.18}px -apple-system, sans-serif`;
         ctx.fillText(timeStr, w / 2, canvas.height * 0.22);
         
-        // 鎖屏日期物理比例 (寬度的 4.5%)
         ctx.font = `500 ${w * 0.045}px -apple-system, sans-serif`;
         ctx.fillText(dateStr, w / 2, canvas.height * 0.13);
         
-        ctx.shadowBlur = 0; // 重設陰影以免影響其他元件
+        ctx.shadowBlur = 0;
     }
 
     function drawCalendar() {
@@ -259,27 +260,30 @@
         const weekColor = document.getElementById('weekendColor').value;
         const lang = document.getElementById('langSelect').value;
         const base = Math.min(canvas.width, canvas.height) * 0.02 * calScale;
-        const firstDay = new Date(y, m - 1, 1).getDay();
         const totalDays = new Date(y, m, 0).getDate();
         const daysLabel = lang === 'en' ? ['MON','TUE','WED','THU','FRI','SAT','SUN'] : ['一','二','三','四','五','六','日'];
 
         ctx.save();
         ctx.translate(state.calX, state.calY);
-        ctx.textAlign = 'left';
-        ctx.fillStyle = mainColor;
+        ctx.textAlign = 'left'; ctx.fillStyle = mainColor;
         ctx.font = `500 ${base * 7}px "Times New Roman", Serif`;
         ctx.fillText(String(m).padStart(2, '0'), 0, 0);
+        
         const lineX = base * 8.5;
         ctx.strokeStyle = mainColor; ctx.lineWidth = Math.max(1, base * 0.1); 
         ctx.beginPath(); ctx.moveTo(lineX, -base * 5.5); ctx.lineTo(lineX, base * 0.5); ctx.stroke();
+        
         ctx.font = `${base * 1.8}px Arial`; ctx.fillText(y, lineX + base * 1.5, -base * 4.3);
-        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`; ctx.fillText(["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][m-1], lineX + base * 1.5, base * 0.5);
+        ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`; 
+        ctx.fillText(["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][m-1], lineX + base * 1.5, base * 0.5);
+        
         const gridW = base * 4.5; const startGridY = base * 6;
         ctx.textAlign = 'center'; ctx.font = `bold ${base * 1.1}px Arial`;
         daysLabel.forEach((d, i) => {
             ctx.fillStyle = (i >= 5) ? weekColor : mainColor;
             ctx.fillText(d, i * gridW + base * 2, startGridY);
         });
+        
         ctx.font = `${base * 1.5}px Arial`;
         let offset = (new Date(y, m-1, 1).getDay() + 6) % 7;
         for (let i = 1; i <= totalDays; i++) {
@@ -291,7 +295,7 @@
         ctx.restore();
     }
 
-    // 拖動與縮放
+    // --- 拖曳偵測與執行 ---
     const getEvPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const s = canvas.width / rect.width;
@@ -299,34 +303,59 @@
         const cy = e.touches ? e.touches[0].clientY : e.clientY;
         return [(cx - rect.left) * s, (cy - rect.top) * s, cx, cy];
     };
+
     const startH = (e) => {
         const [mx, my, cx, cy] = getEvPos(e);
-        const hitZone = Math.min(canvas.width, canvas.height) * 0.3 * parseFloat(document.getElementById('calScale').value);
-        state.activeLayer = (Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2) < hitZone) ? 'cal' : 'img';
-        state.isDragging = true; state.lastCX = cx; state.lastCY = cy;
+        const calScale = parseFloat(document.getElementById('calScale').value);
+        // 判定月曆範圍 (大約範圍即可)
+        const hitZone = Math.min(canvas.width, canvas.height) * 0.4 * calScale;
+        const dist = Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2);
+        
+        state.activeLayer = (dist < hitZone) ? 'cal' : 'img';
+        state.isDragging = true;
+        state.lastCX = cx;
+        state.lastCY = cy;
     };
+
     const moveH = (e) => {
         if (!state.isDragging) return;
         const [mx, my, cx, cy] = getEvPos(e);
         const s = canvas.width / canvas.getBoundingClientRect().width;
-        const dx = (cx - state.lastCX) * s; const dy = (cy - state.lastCY) * s;
-        if (state.activeLayer === 'cal') { state.calX += dx; state.calY += dy; }
-        else { state.x += dx; state.y += dy; }
-        state.lastCX = cx; state.lastCY = cy; draw();
+        const dx = (cx - state.lastCX) * s;
+        const dy = (cy - state.lastCY) * s;
+
+        if (state.activeLayer === 'cal') {
+            state.calX += dx;
+            state.calY += dy;
+        } else {
+            state.x += dx;
+            state.y += dy;
+        }
+        state.lastCX = cx;
+        state.lastCY = cy;
+        draw();
     };
-    canvas.addEventListener('mousedown', startH); window.addEventListener('mousemove', moveH); window.addEventListener('mouseup', () => state.isDragging = false);
-    canvas.addEventListener('touchstart', (e) => { startH(e); e.preventDefault(); }, {passive:false});
-    window.addEventListener('touchmove', (e) => { moveH(e); }, {passive:false});
+
+    canvas.addEventListener('mousedown', startH);
+    window.addEventListener('mousemove', moveH);
+    window.addEventListener('mouseup', () => state.isDragging = false);
+    
+    // 手機端
+    canvas.addEventListener('touchstart', (e) => {
+        startH(e);
+        if(e.cancelable) e.preventDefault();
+    }, {passive: false});
+    window.addEventListener('touchmove', moveH, {passive: false});
     window.addEventListener('touchend', () => state.isDragging = false);
 
     function download() {
-        state.isExporting = true; // 進入匯出模式，關閉鎖屏時間
-        draw(); 
+        state.isExporting = true;
+        draw();
         const link = document.createElement('a');
         link.download = `STUDIO_M_CAL.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
-        state.isExporting = false; // 回復預覽模式
+        state.isExporting = false;
         draw();
     }
 </script>
