@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>STUDIO M - Professional Desktop Optimizer</title>
+		<style>
+			:root {
+			    --bg-color: #f2f3f5;
+			    --sidebar-color: #ffffff;
+			    --accent-color: #6d6763;
+			    --border-color: #e5e5e5;
+			    --text-main: #333333;
+			    --text-muted: #999999;
+			    --input-h: 46px;
+			}
+
+			body {
+			    font-family: -apple-system, "Noto Sans TC", sans-serif;
+			    background-color: var(--bg-color);
+			    margin: 0; display: flex; height: 100vh; color: var(--text-main);
+			    overflow: hidden;
+			}
+
+			.sidebar {
+			    width: 380px; background: var(--sidebar-color);
+			    padding: 40px; box-shadow: 10px 0 40px rgba(0,0,0,0.02);
+			    display: flex; flex-direction: column; gap: 32px;
+			    overflow-y: auto; z-index: 10; flex-shrink: 0;
+			}
+
+			.brand-logo {
+			    font-size: 1.4rem; font-weight: 700; letter-spacing: 4px;
+			    color: var(--accent-color); border-left: 5px solid var(--accent-color);
+			    padding-left: 15px;
+			}
+
+			.control-section { display: flex; flex-direction: column; gap: 18px; }
+
+			.section-label {
+			    font-size: 11px; font-weight: 700; color: #ccc;
+			    letter-spacing: 1.5px; text-transform: uppercase;
+			}
+
+			/* 對齊組件 */
+			.select-wrapper { position: relative; width: 100%; }
+			.select-wrapper::after {
+			    content: ''; position: absolute; right: 16px; top: 50%;
+			    transform: translateY(-50%); width: 10px; height: 6px;
+			    background-color: #ccc; clip-path: polygon(0 0, 100% 0, 50% 100%);
+			    pointer-events: none;
+			}
+
+			select, input[type="month"] {
+			    width: 100%; height: var(--input-h); padding: 0 16px;
+			    border-radius: 10px; border: 1px solid var(--border-color);
+			    background: #fafafa; font-size: 14px; outline: none; box-sizing: border-box;
+			    appearance: none;
+			}
+
+			.file-upload-btn {
+			    display: flex; align-items: center; justify-content: center;
+			    width: 100%; height: var(--input-h); border-radius: 10px;
+			    border: 1px dashed var(--border-color); background: #fafafa;
+			    color: var(--text-muted); font-size: 13px; cursor: pointer;
+			    position: relative; overflow: hidden; transition: 0.2s;
+			}
+			.file-upload-btn:hover { border-color: var(--accent-color); background: #fff; }
+			.file-upload-btn input[type="file"] {
+			    position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;
+			}
+
+			.slider-wrap { display: flex; flex-direction: column; gap: 8px; }
+			.slider-header { display: flex; justify-content: space-between; font-size: 12px; color: #888; }
+			input[type="range"] {
+			    width: 100%; height: 4px; background: #eee; border-radius: 2px;
+			    appearance: none; accent-color: var(--accent-color);
+			}
+
+			.color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+			.color-item {
+			    background: #fafafa; border: 1px solid var(--border-color);
+			    border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+			}
+			.color-item span { font-size: 12px; color: #777; }
+			input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; padding: 0; }
+
+			.btn-download {
+			    background: var(--accent-color); color: #fff; border: none;
+			    padding: 18px; border-radius: 12px; font-weight: 600; cursor: pointer;
+			    margin-top: 10px; letter-spacing: 1px;
+			}
+
+			/* 預覽區 */
+			.preview-pane {
+			    flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px;
+			    background: #e9eaec; overflow: hidden;
+			}
+			.canvas-container { position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.12); background: #fff; }
+			canvas { display: block; max-width: 100%; max-height: 100%; cursor: grab; }
+			canvas:active { cursor: grabbing; }
+
+			.mock-ui {
+			    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+			    pointer-events: none; color: white; display: flex; flex-direction: column; align-items: center;
+			}
+			.mock-time { font-size: 80px; font-weight: 200; margin-top: 15%; letter-spacing: -2px; }
+		</style>
+	</head>
+	<body>
+		<aside class="sidebar">
+			<div class="brand-logo">STUDIO M</div>
+
+			<div class="control-section">
+				<span class="section-label">01 裝置規格</span>
+				<div class="select-wrapper">
+					<select id="resSelect" onchange="initCanvas()">
+						<option value="1920,1080" data-type="pc">電腦裝置 (16:9)</option>
+						<option value="1290,2796" data-type="phone">手機裝置 (iPhone)</option>
+						<option value="2048,2732" data-type="tablet">平板裝置 (iPad)</option>
+					</select>
+				</div>
+				<input type="month" id="monthInput" onchange="draw()" />
+			</div>
+
+			<div class="control-section">
+				<span class="section-label">02 素材與背景</span>
+				<div class="file-upload-btn">
+					<span id="fileName">點擊或拖入圖片</span>
+					<input type="file" id="upload" accept="image/*" />
+				</div>
+				<div class="slider-wrap">
+					<div class="slider-header"><span>圖片大小</span></div>
+					<input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()" />
+				</div>
+				<div class="color-item">
+					<span>底層補色</span>
+					<input type="color" id="bgColor" value="#f4f3ee" onchange="draw()" />
+				</div>
+			</div>
+
+			<div class="control-section">
+				<span class="section-label">03 月曆編排</span>
+				<div class="select-wrapper">
+					<select id="langSelect" onchange="draw()">
+						<option value="en">英文星期</option>
+						<option value="zh">中文星期</option>
+					</select>
+				</div>
+				<div class="slider-wrap">
+					<div class="slider-header"><span>月曆大小 (微調優化)</span></div>
+					<input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()" />
+				</div>
+				<div class="color-row">
+					<div class="color-item">
+						<span>主要色</span>
+						<input type="color" id="mainColor" value="#463f3a" onchange="draw()" />
+					</div>
+					<div class="color-item">
+						<span>週末色</span>
+						<input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()" />
+					</div>
+				</div>
+			</div>
+
+			<button class="btn-download" onclick="download()">EXPORT DESIGN</button>
+		</aside>
+
+		<main class="preview-pane">
+			<div class="canvas-container" id="container">
+				<canvas id="canvas"></canvas>
+				<div class="mock-ui" id="mockUI">
+					<div class="mock-time">09:41</div>
+					<div style="font-size: 18px; font-weight: 300; margin-top:-5px;">12月31日 星期三</div>
+				</div>
+			</div>
+		</main>
+
+		<script>
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			let img = null; // 初始化為 null
+			let state = { x: 0, y: 0, imgScale: 1, calX: 0, calY: 0, isDragging: false, activeLayer: 'img' };
+			const monthNamesShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+			window.onload = () => {
+			    const now = new Date();
+			    document.getElementById('monthInput').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+			    initCanvas();
+			};
+
+			function initCanvas() {
+			    const sel = document.getElementById('resSelect');
+			    const [w, h] = sel.value.split(',').map(Number);
+			    const type = sel.options[sel.selectedIndex].dataset.type;
+			    canvas.width = w; canvas.height = h;
+
+			    document.getElementById('mockUI').className = `mock-ui ${type}`;
+			    document.getElementById('mockUI').style.display = type === 'pc' ? 'none' : 'flex';
+
+			    const container = document.getElementById('container');
+			    const ratio = w / h;
+			    if (w > h) { container.style.width = "70vw"; container.style.height = (70 / ratio) + "vw"; }
+			    else { container.style.height = "80vh"; container.style.width = (80 * ratio) + "vh"; }
+
+			    // 電腦版初始位置微調至左側
+			    state.calX = w * 0.1; state.calY = h * 0.35;
+			    draw();
+			}
+
+			// 優化上傳穩定性
+			document.getElementById('upload').onchange = (e) => {
+			    const file = e.target.files[0];
+			    if (!file) return;
+			    document.getElementById('fileName').textContent = file.name;
+
+			    const reader = new FileReader();
+			    reader.onload = (ev) => {
+			        const tempImg = new Image();
+			        tempImg.onload = () => {
+			            img = tempImg; // 成功讀取後再賦值
+			            // 根據裝置寬度自動適配初始縮放
+			            state.imgScale = Math.max(canvas.width / img.width, canvas.height / img.height);
+			            document.getElementById('imgScale').value = state.imgScale;
+			            state.x = (canvas.width - img.width * state.imgScale) / 2;
+			            state.y = (canvas.height - img.height * state.imgScale) / 2;
+			            draw();
+			        };
+			        tempImg.src = ev.target.result;
+			    };
+			    reader.readAsDataURL(file);
+			};
+
+			function draw() {
+			    ctx.clearRect(0, 0, canvas.width, canvas.height); // 強制清空畫布
+			    ctx.fillStyle = document.getElementById('bgColor').value;
+			    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			    state.imgScale = parseFloat(document.getElementById('imgScale').value);
+			    if (img && img.complete) {
+			        ctx.drawImage(img, state.x, state.y, img.width * state.imgScale, img.height * state.imgScale);
+			    }
+			    drawCalendar();
+			}
+
+			function drawCalendar() {
+			    const dateVal = document.getElementById('monthInput').value;
+			    const [y, m] = dateVal.split('-').map(Number);
+			    const calScale = parseFloat(document.getElementById('calScale').value);
+			    const mainColor = document.getElementById('mainColor').value;
+			    const weekColor = document.getElementById('weekendColor').value;
+			    const lang = document.getElementById('langSelect').value;
+
+			    // 關鍵優化：基準大小改用寬高最小值，避免電腦版過大
+			    const base = Math.min(canvas.width, canvas.height) * 0.02 * calScale;
+
+			    const firstDay = new Date(y, m - 1, 1).getDay();
+			    const totalDays = new Date(y, m, 0).getDate();
+			    const daysLabel = lang === 'en' ? ['MON','TUE','WED','THU','FRI','SAT','SUN'] : ['一','二','三','四','五','六','日'];
+
+			    ctx.save();
+			    ctx.translate(state.calX, state.calY);
+
+			    // 月份數字
+			    ctx.textAlign = 'left';
+			    ctx.fillStyle = mainColor;
+			    ctx.font = `500 ${base * 7}px "Times New Roman", Serif`;
+			    ctx.fillText(String(m).padStart(2, '0'), 0, 0);
+
+			    // 分割線
+			    const lineX = base * 8.5;
+			    ctx.strokeStyle = mainColor;
+			    ctx.lineWidth = Math.max(1, base * 0.1);
+			    ctx.beginPath(); ctx.moveTo(lineX, -base * 5.5); ctx.lineTo(lineX, base * 0.5); ctx.stroke();
+
+			    // 年份與英文
+			    ctx.font = `${base * 1.8}px Arial`;
+			    ctx.fillText(y, lineX + base * 1.5, -base * 4.3);
+			    ctx.font = `400 ${base * 5.5}px "Times New Roman", Serif`;
+			    ctx.fillText(monthNamesShort[m-1], lineX + base * 1.5, base * 0.5);
+
+			    // 星期與日期
+			    const gridW = base * 4.5;
+			    const startGridY = base * 6;
+			    ctx.textAlign = 'center';
+			    ctx.font = `bold ${base * 1.1}px Arial`;
+			    daysLabel.forEach((d, i) => {
+			        ctx.fillStyle = (i >= 5) ? weekColor : mainColor;
+			        ctx.fillText(d, i * gridW + base * 2, startGridY);
+			    });
+
+			    ctx.font = `${base * 1.5}px Arial`;
+			    let offset = firstDay === 0 ? 6 : firstDay - 1;
+			    for (let i = 1; i <= totalDays; i++) {
+			        let dIdx = (offset + i - 1) % 7;
+			        let row = Math.floor((offset + i - 1) / 7);
+			        ctx.fillStyle = (dIdx >= 5) ? weekColor : mainColor;
+			        ctx.fillText(i, dIdx * gridW + base * 2, startGridY + base * 3 + (row * base * 3.5));
+			    }
+			    ctx.restore();
+			}
+
+			// --- 互動與下載邏輯 (穩定性增強) ---
+			const getEvPos = (e) => {
+			    const rect = canvas.getBoundingClientRect();
+			    const s = canvas.width / rect.width;
+			    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+			    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+			    return [(cx - rect.left) * s, (cy - rect.top) * s, cx, cy];
+			};
+			const startH = (e) => {
+			    const [mx, my, cx, cy] = getEvPos(e);
+			    const hitZone = Math.min(canvas.width, canvas.height) * 0.3;
+			    const dist = Math.sqrt((mx - state.calX)**2 + (my - state.calY)**2);
+			    state.activeLayer = dist < hitZone ? 'cal' : 'img';
+			    state.isDragging = true; state.lastCX = cx; state.lastCY = cy;
+			};
+			const moveH = (e) => {
+			    if (!state.isDragging) return;
+			    const [mx, my, cx, cy] = getEvPos(e);
+			    const s = canvas.width / canvas.getBoundingClientRect().width;
+			    const dx = (cx - state.lastCX) * s; const dy = (cy - state.lastCY) * s;
+			    if (state.activeLayer === 'cal') { state.calX += dx; state.calY += dy; }
+			    else { state.x += dx; state.y += dy; }
+			    state.lastCX = cx; state.lastCY = cy; draw();
+			};
+			canvas.addEventListener('mousedown', startH); window.addEventListener('mousemove', moveH); window.addEventListener('mouseup', () => state.isDragging = false);
+			canvas.addEventListener('touchstart', (e) => { startH(e); e.preventDefault(); }, {passive:false});
+			window.addEventListener('touchmove', (e) => { moveH(e); }, {passive:false});
+			window.addEventListener('touchend', () => state.isDragging = false);
+
+			function download() {
+			    const link = document.createElement('a');
+			    link.download = `STUDIO_M_PC_DESIGN.jpg`;
+			    link.href = canvas.toDataURL('image/jpeg', 0.95);
+			    link.click();
+			}
+		</script>
+	</body>
+</html>
