@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STUDIO M - Ultimate UX Edition</title>
+    <title>STUDIO M - Final UX Fix</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -21,26 +21,23 @@
             overflow: hidden;
         }
 
-        /* --- Desktop Layout (維持你喜歡的樣子) --- */
+        /* --- 電腦版佈局 --- */
         .sidebar {
             width: 360px; background: var(--sidebar-color);
             padding: 40px; box-shadow: 10px 0 40px rgba(0,0,0,0.02);
             display: flex; flex-direction: column; gap: 30px;
-            overflow-y: auto; flex-shrink: 0;
+            overflow-y: auto; flex-shrink: 0; z-index: 5;
         }
         .preview-pane {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            background: #e9eaec; padding: 40px; position: relative;
+            background: #e9eaec; padding: 40px; position: relative; z-index: 1;
         }
         .canvas-container { position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.1); background: #fff; }
         canvas { display: block; max-width: 100%; max-height: 100%; cursor: grab; }
 
-        /* --- Mobile UI Elements (手機版專用組件) --- */
-        .mobile-tabs { display: none; }
-        .mobile-header { display: none; }
-
-        /* 通用元件 */
-        .control-section { display: flex; flex-direction: column; gap: 15px; }
+        /* --- 通用元件樣式 --- */
+        .control-section { display: none; flex-direction: column; gap: 15px; }
+        .control-section.active { display: flex; }
         .section-label { font-size: 11px; font-weight: 700; color: #bbb; letter-spacing: 1.5px; text-transform: uppercase; }
         .select-wrapper { position: relative; }
         .select-wrapper::after {
@@ -55,7 +52,7 @@
             display: flex; align-items: center; justify-content: center; height: var(--input-h);
             border-radius: 12px; border: 1px dashed #ccc; background: #fafafa; color: #888; position: relative;
         }
-        .file-upload-btn input { position: absolute; opacity: 0; width: 100%; height: 100%; }
+        .file-upload-btn input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
         .slider-wrap { display: flex; flex-direction: column; gap: 8px; }
         input[type="range"] { width: 100%; height: 4px; background: #eee; appearance: none; accent-color: var(--accent-color); border-radius: 2px; }
         .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -66,58 +63,79 @@
         input[type="color"] { width: 28px; height: 28px; border: none; background: none; cursor: pointer; }
         .btn-download {
             background: var(--accent-color); color: #fff; border: none; padding: 18px;
-            border-radius: 15px; font-weight: 600; cursor: pointer; font-size: 15px;
+            border-radius: 15px; font-weight: 600; cursor: pointer; font-size: 15px; width: 100%;
         }
 
-        /* --- Mobile Responsive 重構 --- */
+        /* --- 手機版 UX 修正 --- */
+        .mobile-tabs, .mobile-header { display: none; }
+
         @media (max-width: 900px) {
             body { flex-direction: column; }
-            .sidebar { 
-                position: fixed; bottom: 0; width: 100%; height: 50vh; 
-                padding: 25px; border-radius: 30px 30px 0 0; 
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
-                transition: height 0.3s ease;
-            }
-            .preview-pane { height: 50vh; padding: 20px; }
-            
-            /* 行動端分頁系統 */
-            .mobile-tabs {
-                display: flex; position: fixed; bottom: 0; width: 100%; 
-                background: #fff; border-top: 1px solid #eee; z-index: 100;
-                justify-content: space-around; padding: 10px 0 25px 0;
-            }
-            .tab-item { font-size: 11px; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-            .tab-item.active { color: var(--accent-color); font-weight: bold; }
-            
-            .sidebar { height: 40vh; padding-bottom: 80px; }
-            .control-section { display: none; }
-            .control-section.active { display: flex; }
             
             .mobile-header {
                 display: flex; justify-content: space-between; align-items: center;
                 padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee;
-                position: fixed; top: 0; width: 100%; z-index: 100;
+                position: fixed; top: 0; width: 100%; height: 50px; z-index: 100; box-sizing: border-box;
             }
-            .brand-logo { border: none; padding: 0; font-size: 1rem; }
-            .preview-pane { margin-top: 50px; height: calc(60vh - 50px); }
+
+            .preview-pane { 
+                height: 50vh; margin-top: 50px; padding: 10px; 
+                flex: none; width: 100%; box-sizing: border-box; 
+            }
+
+            .sidebar { 
+                position: fixed; bottom: 0; width: 100%; height: 40vh; 
+                padding: 20px 20px 85px 20px; border-radius: 25px 25px 0 0; 
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+                box-sizing: border-box; z-index: 50; overflow-y: auto;
+            }
+
+            .mobile-tabs {
+                display: flex; position: fixed; bottom: 0; width: 100%; height: 75px;
+                background: #ffffff; border-top: 1px solid #eee; z-index: 200; /* 確保在最頂層 */
+                justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom);
+            }
+            .tab-item { 
+                flex: 1; text-align: center; font-size: 11px; color: #bbb; 
+                display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .tab-item span { font-size: 20px; }
+            .tab-item.active { color: var(--accent-color); font-weight: bold; }
+
+            /* 電腦版預設顯示第一項，手機版則依切換 */
+            .sidebar .control-section:first-child { display: flex; }
+            .sidebar .control-section.active { display: flex; }
+            .sidebar .control-section:not(.active) { display: none; }
+        }
+
+        /* 電腦版時強制顯示所有區塊 */
+        @media (min-width: 901px) {
+            .control-section { display: flex !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="mobile-header">
-    <div class="brand-logo">STUDIO M</div>
-    <div style="font-size: 12px; color: #999;">雙指縮放圖片 / 單指移動月曆</div>
+    <div style="font-weight:700; letter-spacing:2px; color:var(--accent-color)">STUDIO M</div>
+    <div style="font-size: 10px; color: #999;">單指移月曆 / 雙指縮放圖</div>
 </div>
+
+<main class="preview-pane">
+    <div class="canvas-container" id="container">
+        <canvas id="canvas"></canvas>
+    </div>
+</main>
 
 <aside class="sidebar" id="sidebar">
     <div class="control-section active" id="sec-device">
         <span class="section-label">01 裝置規格</span>
         <div class="select-wrapper">
             <select id="resSelect" onchange="initCanvas()">
-                <option value="1290,2796" data-type="phone">手機 iPhone</option>
-                <option value="1920,1080" data-type="pc">電腦 Desktop</option>
-                <option value="2048,2732" data-type="tablet">平板 iPad</option>
+                <option value="1290,2796" data-type="phone">手機裝置 (iPhone)</option>
+                <option value="1920,1080" data-type="pc">電腦裝置 (16:9)</option>
+                <option value="2048,2732" data-type="tablet">平板裝置 (iPad)</option>
             </select>
         </div>
         <input type="month" id="monthInput" onchange="draw()">
@@ -130,7 +148,7 @@
             <input type="file" id="upload" accept="image/*">
         </div>
         <div class="slider-wrap">
-            <div class="slider-header"><span>圖片縮放</span></div>
+            <div class="slider-header" style="font-size:12px; color:#888;"><span>圖片縮放</span></div>
             <input type="range" id="imgScale" min="0.1" max="5" step="0.01" value="1" oninput="draw()">
         </div>
         <div class="color-item">
@@ -140,35 +158,29 @@
     </div>
 
     <div class="control-section" id="sec-cal">
-        <span class="section-label">03 月曆樣式</span>
+        <span class="section-label">03 月曆編排</span>
         <div class="select-wrapper">
             <select id="langSelect" onchange="draw()">
-                <option value="en">English (Mon-Sun)</option>
-                <option value="zh">繁體中文 (一-日)</option>
+                <option value="en">英文星期 (MON...)</option>
+                <option value="zh">中文星期 (一...)</option>
             </select>
         </div>
         <div class="slider-wrap">
-            <div class="slider-header"><span>月曆大小</span></div>
+            <div class="slider-header" style="font-size:12px; color:#888;"><span>月曆大小</span></div>
             <input type="range" id="calScale" min="0.2" max="4" step="0.05" value="1" oninput="draw()">
         </div>
         <div class="color-row">
-            <div class="color-item"><span>主要文字</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
-            <div class="color-item"><span>週末顏色</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
+            <div class="color-item"><span>文字色</span><input type="color" id="mainColor" value="#463f3a" onchange="draw()"></div>
+            <div class="color-item"><span>週末色</span><input type="color" id="weekendColor" value="#bcb8b1" onchange="draw()"></div>
         </div>
     </div>
 
     <div class="control-section" id="sec-export">
-        <span class="section-label">04 完成匯出</span>
-        <p style="font-size: 13px; color: #888;">確認設計無誤後，點擊下方按鈕下載高解析度桌布。</p>
-        <button class="btn-download" onclick="download()">SAVE TO ALBUM</button>
+        <span class="section-label">04 匯出檔案</span>
+        <p style="font-size: 12px; color: #999; margin: 5px 0 15px 0;">設計完成後，點擊按鈕儲存高解析度圖片。</p>
+        <button class="btn-download" onclick="download()">儲存至相簿</button>
     </div>
 </aside>
-
-<main class="preview-pane">
-    <div class="canvas-container" id="container">
-        <canvas id="canvas"></canvas>
-    </div>
-</main>
 
 <nav class="mobile-tabs">
     <div class="tab-item active" onclick="switchTab('device', this)"><span>⚙️</span>裝置</div>
@@ -178,12 +190,23 @@
 </nav>
 
 <script>
-    // --- 切換 Tab 邏輯 ---
+    // --- 手機版功能切換修正 ---
     function switchTab(target, el) {
-        document.querySelectorAll('.control-section').forEach(s => s.classList.remove('active'));
+        // 先移除所有 active
+        document.querySelectorAll('.control-section').forEach(s => {
+            s.classList.remove('active');
+            s.style.display = 'none'; // 強制隱藏
+        });
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        document.getElementById('sec-' + target).classList.add('active');
+        
+        // 顯示目標
+        const activeSec = document.getElementById('sec-' + target);
+        activeSec.classList.add('active');
+        activeSec.style.display = 'flex'; // 強制顯示
         el.classList.add('active');
+        
+        // 捲動回頂部
+        document.getElementById('sidebar').scrollTop = 0;
     }
 
     const canvas = document.getElementById('canvas');
@@ -209,7 +232,6 @@
             if (w > h) { container.style.width = "60vw"; container.style.height = (60 / ratio) + "vw"; }
             else { container.style.height = "75vh"; container.style.width = (75 * ratio) + "vh"; }
         } else {
-            // 手機版預覽圖適配
             if (w > h) { container.style.width = "85vw"; container.style.height = (85 / ratio) + "vw"; }
             else { container.style.height = "40vh"; container.style.width = (40 * ratio) + "vh"; }
         }
